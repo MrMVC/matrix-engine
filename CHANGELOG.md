@@ -16,13 +16,13 @@
 
 # \### Added
 
-# \- Interactive, browser-based Matrix Engine Web Studio.
+# \- Interactive Matrix Engine Web Studio.
 
-# \- Real-time animated SVG banner preview.
+# \- Real-time animated SVG preview.
 
 # \- Six color presets and custom HEX colors.
 
-# \- Custom banner dimensions, typography, animation speed and random seed.
+# \- Custom dimensions, typography, animation speed and seed.
 
 # \- Animated and static SVG downloads.
 
@@ -42,11 +42,11 @@
 
 # \### Fixed
 
-# \- SVG preview timing during rapid configuration changes.
+# \- SVG preview timing during configuration changes.
 
 # \- Premature SVG blob URL revocation.
 
-# \- Browser compatibility issues in the CI environment.
+# \- Browser compatibility issues in CI.
 
 # 
 
@@ -54,9 +54,9 @@
 
 # \- Original Python CLI remains unchanged.
 
-# \- No backend, API keys or installation required for the web studio.
+# \- No backend, API keys or installation required.
 
-# \- All banner generation takes place locally in the browser.
+# \- Fully client-side banner generation.
 
 # 
 
