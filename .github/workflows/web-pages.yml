@@ -1,0 +1,56 @@
+name: Matrix Engine Web
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['web/**', '.github/workflows/web-pages.yml']
+  push:
+    branches: [main, feature/matrix-engine-web]
+    paths: ['web/**', '.github/workflows/web-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx --no-install playwright-core install --with-deps --only-shell chromium
+      - run: npm run check:browser -- --production
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: matrix-engine-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - name: Deploy verified build
+        id: publish
+        uses: actions/deploy-pages@v4
