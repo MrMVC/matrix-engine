@@ -11,7 +11,7 @@ Create your own digital identity through code.
 ![Python](https://img.shields.io/badge/Python-3.11+-A855F7?style=for-the-badge&logo=python&logoColor=white)
 ![SVG](https://img.shields.io/badge/Format-SVG-9333EA?style=for-the-badge&logo=svg&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-D946EF?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-In_Development-7C3AED?style=for-the-badge)
+[![Release](https://img.shields.io/github/v/release/MrMVC/matrix-engine?style=for-the-badge&color=7C3AED)](https://github.com/MrMVC/matrix-engine/releases/latest)
 [![Matrix Engine CI](https://github.com/MrMVC/matrix-engine/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MrMVC/matrix-engine/actions/workflows/ci.yml)
 
 </div>
