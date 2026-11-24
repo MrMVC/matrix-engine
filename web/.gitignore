@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.local/
+.hallmark/
+.env*
+!.env.example
+.npmrc
+*.local
+*.log
+*.tsbuildinfo
+*.pem
+*.key
+*.p12
+.vite/
+coverage/
+test-results/
+playwright-report/

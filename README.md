@@ -131,6 +131,28 @@ profile repository and reference it in your README.
 Animation support may vary depending on the 
 browser and SVG rendering environment.
 
+## Matrix Engine Web
+
+The browser studio in `web/` generates animated or static SVG banners locally. It includes the six CLI palettes, custom HEX colors, seeded generation, local fonts, a live preview, SVG download and Markdown copy/download.
+
+With Node.js 24 LTS or newer, run these commands from the repository root. On Windows use `npm.cmd`.
+
+```powershell
+cd web
+npm.cmd ci
+npm.cmd run dev
+```
+
+Open the local address printed by Vite, including `/matrix-engine/`. Download `matrix-banner.svg`, place it beside the README in your own repository and paste the Markdown from the export menu. GitHub supports relative image paths. Its repository file viewer has restrictions on SVG animation. Use a static export when a fixed appearance is required. [GitHub image syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images) · [GitHub file viewer](https://docs.github.com/en/repositories/working-with-files/using-files/working-with-non-code-files#viewing-images)
+
+### GitHub Pages
+
+1. In **Settings → Pages → Build and deployment**, select **GitHub Actions** as the source. Enable Actions for the repository.
+2. If deployment branch restrictions are enabled for the `github-pages` environment, allow `main`.
+3. The **Matrix Engine Web** workflow tests the feature branch and pull requests. On an eligible push to `main`, or a manual run on `main`, it tests, builds and deploys only `web/dist/`. The deployment job requests `pages: write` and `id-token: write`.
+
+After deployment the project site is served at `https://mrmvc.github.io/matrix-engine/`. Local build instructions, generator parity and browser test coverage are documented in the [web implementation notes](./web/PORTIERUNG.md). [GitHub Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
+
 ## 08 / Roadmap
 
 - [x] SVG generation
@@ -145,7 +167,7 @@ browser and SVG rendering environment.
 - [x] Automated dependency updates
 - [x] CodeQL security scanning
 - [ ] PNG and GIF export
-- [ ] Interactive web-based generator
+- [x] Interactive web-based generator
 - [ ] Custom color palette editor
 - [ ] PyPI package distribution
 
