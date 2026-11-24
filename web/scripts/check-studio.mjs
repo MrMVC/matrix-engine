@@ -34,7 +34,7 @@ try {
     window.activeBlobCount = () => active.size
   })
   page.on('pageerror', error => errors.push(error.message))
-  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  page.on('console', message => { if (message.type() === 'error') errors.push(JSON.stringify({ message: message.text(), location: message.location() })) })
   page.on('response', response => { if (response.status() >= 400) errors.push(response.url()) })
   page.on('request', request => {
     if (new URL(request.url()).origin !== new URL(url).origin) errors.push(request.url())
