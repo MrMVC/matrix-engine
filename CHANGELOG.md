@@ -4,6 +4,38 @@ All notable changes to Matrix Engine will be documented in this file.
 
 This project follows Semantic Versioning.
 
+## [2.1.0] - 2026-11-25
+
+### Added
+
+- English and German language support with English as the default.
+- Language switcher with persistent language preferences.
+- Animated left-to-right scanline effect.
+- Independent scanline visibility and animation controls.
+- Hidden, static and animated scanline modes.
+- Python CLI options `--no-scanline` and `--no-scanline-animation`.
+- Localized validation messages and export instructions.
+
+### Improved
+
+- Consistent scanline behavior across web and Python generators.
+- Responsive interface in both supported languages.
+- Preservation of banner settings during language switching.
+- Reduced-motion support.
+
+### Testing
+
+- 10 automated generator and export tests passed.
+- 4 automated Python CLI tests passed.
+- Browser tests passed at six viewport widths in both languages.
+- All 13 executed GitHub pull request checks passed.
+
+### Live Demo
+
+https://mrmvc.github.io/matrix-engine/
+
+---
+
 ## [2.0.0] - 2026-11-25
 
 ### Added
