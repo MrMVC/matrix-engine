@@ -115,6 +115,9 @@ python build_mrmvc.py --output output/banner.svg
 | --font-path | Automatic | Custom TrueType font |
 | --seed | 42 | Random generation seed |
 | --output | output/matrix-banner.svg | Output file |
+| --color | purple | Color preset |
+| --speed | 1.0 | Animation speed multiplier |
+| --no-animation | Disabled | Generate a static SVG |
 
 ## 07 / GitHub Integration
 
@@ -134,12 +137,17 @@ browser and SVG rendering environment.
 - [x] Animated digital rain
 - [x] Custom text rendering
 - [x] Command-line interface
-- [ ] CLI color presets
-- [ ] Configurable animation speed
-- [ ] Automatic text scaling
+- [x] Six CLI color presets
+- [x] Configurable animation speed
+- [x] Automatic text scaling
+- [x] Static SVG generation
+- [x] Automated cross-platform testing
+- [x] Automated dependency updates
+- [x] CodeQL security scanning
 - [ ] PNG and GIF export
-- [ ] Automated testing
-- [ ] First stable release
+- [ ] Interactive web-based generator
+- [ ] Custom color palette editor
+- [ ] PyPI package distribution
 
 ## 09 / Contributing
 
