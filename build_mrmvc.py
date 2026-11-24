@@ -1,6 +1,7 @@
 """Generate a customizable animated Matrix-style SVG banner."""
 import argparse
 import random
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
 from PIL import Image, ImageDraw, ImageFont
@@ -32,7 +33,7 @@ def load_font(size, font_path=None):
 def build_svg(text='MrMVC', width=1500, height=400,
               output='output/matrix-banner.svg', font_path=None,
               font_size=218, seed=42, color='purple', speed=1.0,
-              animate=True):
+              animate=True, show_scanline=True, animate_scanline=True):
     if not text.strip() or len(text) > 80 or any(ord(c) < 32 or 0xD800 <= ord(c) <= 0xDFFF or ord(c) in (0xFFFE, 0xFFFF) for c in text):
         raise ValueError('Text must contain 1–80 printable characters.')
     if not (300 <= width <= 4000 and 120 <= height <= 1600):
@@ -76,7 +77,17 @@ def build_svg(text='MrMVC', width=1500, height=400,
                 if animate:
                     parts.append(f'<animate attributeName="opacity" values=".55;1;.8;.55" dur="{rng.uniform(2,5)/speed:.2f}s" begin="{-rng.uniform(0,5)/speed:.2f}s" repeatCount="indefinite"/>')
                 parts.append('</text>')
-    parts.append(f'</g><path d="M0 {height*.79} H{width}" stroke="{accent}" opacity=".2"/></g></svg>')
+    parts.append('</g>')
+    if show_scanline:
+        line_y = height * .79
+        parts.append(f'<path d="M0 {line_y} H{width}" stroke="{accent}" opacity=".2"/>')
+        if animate and animate_scanline:
+            scan_width = width * .22
+            # Match JavaScript's toFixed(2) for ties such as 3 / 0.96.
+            duration = Decimal.from_float(3 / speed).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)
+            parts.append(f'<defs><linearGradient id="scanline"><stop offset="0" stop-color="{accent}" stop-opacity="0"/><stop offset=".5" stop-color="{light}"/><stop offset="1" stop-color="{accent}" stop-opacity="0"/></linearGradient></defs>')
+            parts.append(f'<rect x="{-scan_width}" y="{line_y - 1}" width="{scan_width}" height="2" fill="url(#scanline)"><animate attributeName="x" from="{-scan_width}" to="{width}" dur="{duration}s" repeatCount="indefinite"/></rect>')
+    parts.append('</g></svg>')
     path = Path(output)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(''.join(parts), encoding='utf-8')
@@ -94,9 +105,13 @@ def main():
     parser.add_argument('--color', choices=PALETTES, default='purple')
     parser.add_argument('--speed', type=float, default=1.0)
     parser.add_argument('--output', default='output/matrix-banner.svg')
-    parser.add_argument('--no-animation', action='store_true')
+    parser.add_argument('--no-animation', dest='animate', action='store_false',
+                        help='Generate a static SVG with all animation disabled.')
+    parser.add_argument('--no-scanline', dest='show_scanline', action='store_false',
+                        help='Hide the scanline and its moving light impulse.')
+    parser.add_argument('--no-scanline-animation', dest='animate_scanline', action='store_false',
+                        help='Keep the static scanline while other animations continue.')
     args = vars(parser.parse_args())
-    args['animate'] = not args.pop('no_animation')
     try:
         print(f'Banner generated: {build_svg(**args)}')
     except (ValueError, OSError) as exc:

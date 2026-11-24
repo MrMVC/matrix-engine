@@ -6,7 +6,7 @@ import { preview } from 'vite'
 import { markdownSnippet } from '../src/exports.ts'
 
 const target = process.argv[2] ?? 'http://127.0.0.1:5173/matrix-engine/'
-const screenshots = fileURLToPath(new URL('../screenshots/', import.meta.url))
+const screenshots = new URL(process.env.MATRIX_TEST_SCREENSHOTS || '../screenshots/', import.meta.url)
 await mkdir(screenshots, { recursive: true })
 const browser = await chromium.launch({
   channel: process.platform === 'win32' ? 'msedge' : undefined,
@@ -24,7 +24,8 @@ try {
     })
     url = `http://127.0.0.1:${server.httpServer.address().port}/matrix-engine/`
   }
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, locale: 'de-AT' })
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'de-AT' })
+  const page = await context.newPage()
   await page.addInitScript(() => {
     const active = new Set()
     const create = URL.createObjectURL.bind(URL)
@@ -70,7 +71,31 @@ try {
   }
   await page.goto(url, { waitUntil: 'networkidle' })
   await page.evaluate(() => document.fonts.ready)
+  // Simulate a first-time visitor with an Austrian German browser locale.
+  await page.getByRole('heading', { name: 'Banner Studio', exact: true }).waitFor()
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en')
+  assert.equal(await page.title(), 'Banner Studio | Matrix Engine')
+  await field('Banner text').fill('Locale test')
+  await field('Random seed').fill('-99')
+  await field('Show scanline').uncheck()
+  await svg()
+  const sourceBeforeSwitch = await banner.getAttribute('src')
+  await button('DE').click()
+  await field('Bannertext').waitFor()
+  assert.equal(await page.title(), 'Banner-Studio | Matrix Engine')
+  assert.equal(await field('Bannertext').inputValue(), 'Locale test')
+  assert.equal(await field('Zufallsseed').inputValue(), '-99')
+  assert.equal(await field('Linie anzeigen').isChecked(), false)
+  assert.equal(await field('Linie animieren').isDisabled(), true)
+  assert.equal(await banner.getAttribute('src'), sourceBeforeSwitch)
+  await page.reload({ waitUntil: 'networkidle' })
   await page.getByRole('heading', { name: 'Banner-Studio' }).waitFor()
+  assert.equal(await page.locator('html').getAttribute('lang'), 'de')
+  await button('EN').click()
+  await page.reload({ waitUntil: 'networkidle' })
+  await field('Banner text').waitFor()
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en')
+  await button('DE').click()
   assert.equal(await page.locator('.brand img').evaluate(img => img.naturalWidth > 0), true)
   assert.equal(await field('Bannertext').inputValue(), 'MrMVC')
   const defaultSvg = await svg()
@@ -110,18 +135,23 @@ try {
     return +(usedSize / 1048576).toFixed(2)
   }
   const beforeHeap = await heapMiB()
-  for (const width of [1440, 1024, 768, 540, 390, 320]) {
-    await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 })
-    const fits = await page.evaluate(() => {
-      const elements = document.querySelectorAll('main button, main input, nav a, .artboard')
-      return [...elements].filter(el => el.getClientRects().length).every(el => {
-        const rect = el.getBoundingClientRect()
-        return rect.left >= 0 && rect.right <= innerWidth + 1
+  for (const language of ['EN', 'DE']) {
+    await button(language).click()
+    for (const width of [1440, 1024, 768, 540, 390, 320]) {
+      await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 })
+      const fits = await page.evaluate(() => {
+        const elements = document.querySelectorAll('main button, main input, nav a, nav button, .artboard')
+        const nav = [...document.querySelectorAll('nav a, nav button')].map(el => el.getBoundingClientRect())
+        const distinct = nav.every((rect, i) => !i || rect.left >= nav[i - 1].right - 1)
+        return distinct && [...elements].filter(el => el.getClientRects().length).every(el => {
+          const rect = el.getBoundingClientRect()
+          return rect.left >= 0 && rect.right <= innerWidth + 1
+        })
       })
-    })
-    assert.ok(fits, `Controls overflow at ${width}px`)
-    if (width === 1440 || width === 390) {
-      await page.screenshot({ path: screenshots + (width === 1440 ? 'desktop.png' : 'smartphone.png'), fullPage: true })
+      assert.ok(fits, `Controls overflow at ${width}px`)
+      if (language === 'EN' && (width === 1440 || width === 390)) {
+        await page.screenshot({ path: fileURLToPath(new URL(width === 1440 ? 'desktop.png' : 'smartphone.png', screenshots)), fullPage: true })
+      }
     }
   }
   await page.setViewportSize({ width: 1280, height: 800 })
@@ -141,12 +171,12 @@ try {
   await field('Breite').fill('300')
   await page.getByRole('alert').waitFor()
   await field('Bannertext').fill('Matrix')
-  for (const name of ['Green', 'Blue', 'Red', 'Cyan', 'Mono', 'Purple']) {
+  for (const name of ['Grün', 'Blau', 'Rot', 'Cyan', 'Monochrom', 'Violett']) {
     await button(name).click()
     assert.equal(await button(name).getAttribute('aria-pressed'), 'true')
   }
   await field('Eigener HEX-Farbwert').fill('#00aaff')
-  assert.equal(await button('Purple').getAttribute('aria-pressed'), 'false')
+  assert.equal(await button('Violett').getAttribute('aria-pressed'), 'false')
   await field('Eigener HEX-Farbwert').fill('#xyz')
   assert.equal(await field('Eigener HEX-Farbwert').getAttribute('aria-invalid'), 'true')
   await field('Farbwähler öffnen').fill('#ffeedd')
@@ -168,11 +198,11 @@ try {
   assert.equal(await field('Animation aktivieren').isChecked(), false)
   assert.equal(await field('Geschwindigkeit').isDisabled(), true)
   await field('Animation aktivieren').check()
-  await field('Random Seed').fill('-123')
+  await field('Zufallsseed').fill('-123')
   const initial = await svg()
   await button('Neuen Seed würfeln').click()
   assert.notEqual(await svg(), initial)
-  await field('Random Seed').fill('-123')
+  await field('Zufallsseed').fill('-123')
   assert.equal(await svg(), initial)
   await button('Vorschau vergrößern').click()
   await page.getByRole('dialog').waitFor()
@@ -180,10 +210,10 @@ try {
   assert.equal(await page.getByRole('dialog').count(), 0)
   await button('Zurücksetzen').click()
   assert.equal(await field('Bannertext').inputValue(), 'MrMVC')
-  assert.equal(await field('Random Seed').inputValue(), '42')
+  assert.equal(await field('Zufallsseed').inputValue(), '42')
   assert.equal(await svg(), defaultSvg)
   assert.equal(await field('Geschwindigkeit').inputValue(), '1')
-  assert.equal(await button('Purple').getAttribute('aria-pressed'), 'true')
+  assert.equal(await button('Violett').getAttribute('aria-pressed'), 'true')
   assert.equal(await page.locator('[aria-invalid=true]').count(), 0)
   await page.locator('summary').click()
   await field('Schriftgröße').fill('1600')
@@ -200,12 +230,44 @@ try {
   await button('Zurücksetzen').click()
   const special = '<tag attr="x"> & [Ω](z) 😀'
   await field('Bannertext').fill(special)
+  assert.ok(await field('Linie anzeigen').isChecked())
+  assert.ok(await field('Linie animieren').isChecked())
+  await field('Linie animieren').uncheck()
+  await button('Exportoptionen').click()
+  const staticLine = await download('SVG herunterladen', 'matrix-banner.svg')
+  assert.equal(staticLine, await svg())
+  assert.ok(staticLine.includes('<path d="M0 316 H1500"') && !staticLine.includes('id="scanline"'))
+  assert.ok(staticLine.includes('<animateTransform'))
+  await page.keyboard.press('Escape')
+  await field('Linie anzeigen').uncheck()
+  assert.ok(await field('Linie animieren').isDisabled())
+  await button('Exportoptionen').click()
+  const hidden = await download('SVG herunterladen', 'matrix-banner.svg')
+  assert.equal(hidden, await svg())
+  assert.ok(!hidden.includes('<path') && !hidden.includes('scanline'))
+  await page.keyboard.press('Escape')
+  await field('Linie anzeigen').check()
+  assert.equal(await field('Linie animieren').isChecked(), false)
+  await field('Linie animieren').check()
+  await field('Eigener HEX-Farbwert').fill('#123456')
+  await field('Geschwindigkeit').press('End')
   const bytes = await svg()
+  // Sample the live SMIL timeline of the preview image source in its own document.
+  const probe = await page.context().newPage()
+  await probe.goto(await banner.getAttribute('src'))
+  const displacement = await probe.evaluate(async () => {
+    const rect = document.querySelector('rect[fill="url(#scanline)"]')
+    const first = rect.x.animVal.value
+    await new Promise(resolve => setTimeout(resolve, 90))
+    return Math.abs(rect.x.animVal.value - first)
+  })
+  assert.ok(displacement > 1, 'The preview scanline moves')
+  await probe.close()
   await button('Exportoptionen').click()
   const animated = await download('SVG herunterladen', 'matrix-banner.svg')
   assert.equal(animated, bytes)
   assert.ok(animated.includes('<animateTransform') && animated.includes('<animate '))
-  const snippet = markdownSnippet(special)
+  const snippet = markdownSnippet(special, 'de')
   assert.equal(await download('Markdown herunterladen', 'matrix-banner.md'), snippet + '\n')
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(url).origin })
   await button('Markdown kopieren').click()
@@ -223,15 +285,20 @@ try {
     const root = document.documentElement
     const glyph = root.querySelector('text animate').parentElement
     const rain = root.querySelector('animateTransform').parentElement
+    const scanline = root.querySelector('rect[fill="url(#scanline)"]')
     root.pauseAnimations()
     const frames = [0, .3, .7].map(time => {
       root.setCurrentTime(time)
-      return [getComputedStyle(glyph).opacity, rain.getCTM().f]
+      return [getComputedStyle(glyph).opacity, rain.getCTM().f, scanline.x.animVal.value]
     })
     return { label: root.getAttribute('aria-label'), unsafe: !!root.querySelector('parsererror, tag, script, foreignObject, [href]'), frames }
   })
   assert.equal(checks.label, special + ' matrix banner')
   assert.equal(checks.unsafe, false)
+  // 22% of 1500 = 330, full traversal in 3 / 4 seconds at 4× speed.
+  for (const [i, time] of [0, .3, .7].entries()) {
+    assert.ok(Math.abs(checks.frames[i][2] - (-330 + 1830 * time / .75)) < .1)
+  }
   for (const i of [0, 1]) assert.ok(new Set(checks.frames.map(frame => frame[i])).size > 1)
   await standalone.close()
   await page.keyboard.press('Escape')
@@ -244,7 +311,9 @@ try {
   await button('Zurücksetzen').click()
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.getByText('Statisch', { exact: true }).waitFor()
-  assert.ok(!(await svg()).includes('<animate'))
+  const reduced = await svg()
+  assert.ok(!reduced.includes('<animate') && !reduced.includes('id="scanline"'))
+  assert.ok(reduced.includes('<path d="M0 316 H1500"'))
   await button('Exportoptionen').click()
   assert.equal(await download('SVG herunterladen', 'matrix-banner.svg'), defaultSvg)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
@@ -254,7 +323,7 @@ try {
   console.log({ defaultSvgBytes: Buffer.byteLength(defaultSvg), largeSvgBytes: Buffer.byteLength(large),
     maxFormatUpdateMs: elapsed, jsHeapMiB: { before: beforeHeap, maxFormat: peakCaseHeap, after: afterHeap } })
   assert.deepEqual(errors, [])
-  console.log('Browser checks passed at six widths. Desktop and smartphone screenshots saved.')
+  console.log('Browser checks passed at six widths in both languages. Desktop and smartphone screenshots saved.')
 } finally {
   await browser.close()
   await server?.close()

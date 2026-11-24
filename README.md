@@ -118,6 +118,16 @@ python build_mrmvc.py --output output/banner.svg
 | --color | purple | Color preset |
 | --speed | 1.0 | Animation speed multiplier |
 | --no-animation | Disabled | Generate a static SVG |
+| --no-scanline | Disabled | Hide both the underline and its moving light impulse |
+| --no-scanline-animation | Disabled | Keep the underline still while rain and digits animate |
+
+The scanline is visible and animated by default. Its impulse crosses the banner every three seconds at 1× speed. A static export keeps the visible underline and removes all animation.
+
+```sh
+python build_mrmvc.py --text Studio --no-scanline
+python build_mrmvc.py --text Studio --no-scanline-animation
+python build_mrmvc.py --text Studio --color cyan --speed 2
+```
 
 ## 07 / GitHub Integration
 
@@ -132,6 +142,8 @@ Animation support may vary depending on the
 browser and SVG rendering environment.
 
 ## Matrix Engine Web
+
+The studio opens in English on the first visit. Select **EN** or **DE** in the navigation to save your language on this device. **Show scanline** controls the entire underline. **Animate scanline** controls its light impulse. Reduced motion keeps the preview still. Downloads follow the selected animation settings.
 
 The browser studio in `web/` generates animated or static SVG banners locally. It includes the six CLI palettes, custom HEX colors, seeded generation, local fonts, a live preview, SVG download and Markdown copy/download.
 

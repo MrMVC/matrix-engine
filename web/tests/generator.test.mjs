@@ -42,7 +42,7 @@ test('rejects invalid XML characters, colors, dimensions, timing and seeds befor
     { text: '\ufffe' }, { text: 'a\nb' }, { width: 299 }, { width: 4001 }, { height: 119 }, { height: 1601 },
     { width: 400.1 }, { seed: 2 ** 53 }, { speed: NaN }, { speed: .24 }, { speed: 4.01 },
     { fontSize: 7 }, { fontSize: 1601 }, { customColor: '#abc' }, { customColor: 'url(#x)' },
-    { preset: 'constructor' }, { animate: 1 }]) {
+    { preset: 'constructor' }, { animate: 1 }, { showScanline: 0 }, { animateScanline: 'true' }]) {
     assert.throws(() => renderSvg({ ...defaults, ...values }, mask))
   }
   assert.ok(validText('😀'.repeat(80)))
@@ -68,4 +68,36 @@ test('speed scales animation timings and static output is independent of speed',
   assert.ok(output(4).includes('dur="1.41s"'))
   assert.equal(renderSvg({ ...defaults, animate: false, speed: .25 }, mask),
     renderSvg({ ...defaults, animate: false, speed: 4 }, mask))
+})
+
+test('scanline visibility and motion obey both local switches and global animation', () => {
+  for (const animate of [true, false]) {
+    for (const showScanline of [true, false]) {
+      for (const animateScanline of [true, false]) {
+        const svg = renderSvg({ ...defaults, animate, showScanline, animateScanline }, mask)
+        const impulse = animate && showScanline && animateScanline
+        assert.equal(svg.includes('<path d="M0 316 H1500"'), showScanline)
+        assert.equal(svg.includes('id="scanline"'), impulse)
+        assert.equal(svg.includes('fill="url(#scanline)"'), impulse)
+        assert.equal(svg.includes('<animate attributeName="x"'), impulse)
+        assert.equal(svg.includes('<animateTransform'), animate)
+        if (!animate) assert.doesNotMatch(svg, /<animate/i)
+      }
+    }
+  }
+})
+
+test('scanline matches palette, geometry and speed including custom HEX colors', () => {
+  for (const speed of [.25, 1, 4]) {
+    const svg = renderSvg({ ...defaults, customColor: '#123456', speed }, mask)
+    assert.ok(svg.includes('<path d="M0 316 H1500" stroke="#123456" opacity=".2"/>'))
+    assert.ok(svg.includes('<stop offset=".5" stop-color="#bdc6d0"/>'))
+    assert.ok(svg.includes('<rect x="-330" y="315" width="330" height="2" fill="url(#scanline)">'))
+    assert.ok(svg.includes(`attributeName="x" from="-330" to="1500" dur="${(3 / speed).toFixed(2)}s"`))
+  }
+})
+
+test('Markdown localizes the alternative text and keeps the SVG destination', () => {
+  assert.equal(markdownSnippet('Demo'), '![Demo – Matrix banner](./matrix-banner.svg)')
+  assert.equal(markdownSnippet('Demo', 'de'), '![Demo – Matrix-Banner](./matrix-banner.svg)')
 })

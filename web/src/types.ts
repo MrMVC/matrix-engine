@@ -8,6 +8,8 @@ export interface BannerSettings {
   width: number
   height: number
   speed: number
+  showScanline: boolean
+  animateScanline: boolean
   animate: boolean
   seed: number
   preset: Preset

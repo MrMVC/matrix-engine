@@ -62,6 +62,15 @@ svg.lucide { width: 17px; height: 17px; flex: none; stroke-width: 1.65; }
 .nav-divider, .tool-divider { width: 1px; height: 20px; background: var(--line); }
 .active-nav { padding: 8px 12px; border-radius: 7px; color: var(--lavender); background: var(--selected); }
 .nav-end { gap: 28px; margin-left: auto; color: var(--sub); }
+.language-switch { display: flex; border: 1px solid var(--line); border-radius: 6px; }
+.language-switch button { padding: 5px 7px; font: inherit; font-size: 12px; border: 0; border-radius: 5px; background: var(--clear); color: var(--sub); }
+.language-switch button[aria-pressed=true] { background: var(--selected); color: var(--lavender); }
+.switch-row:has(input:disabled) { opacity: .5; cursor: default; }
+.font-file { position: relative; }
+.font-file > span { display: block; margin-top: 6px; overflow-wrap: anywhere; }
+.font-file > span > span { display: inline-block; padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; }
+.font-file:focus-within > span > span { outline: 2px solid var(--focus); }
+.font-options .font-file input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
 .nav-end a:hover { color: var(--ink); }
 .github-link { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
 .github-link svg:last-child { width: 13px; height: 13px; color: var(--muted); }
@@ -210,6 +219,12 @@ footer span { gap: 8px; }
   .swatches { gap: 12px; }
   .swatches button { width: 32px; height: 32px; }
   .input-row input:not([type=color]) { font-size: 16px; }
+}
+@media (max-width: 420px) {
+  .nav, .nav-end { gap: 4px; }
+  .nav .docs-link, .nav .github-link, .nav .active-nav { padding: 6px; }
+  .github-link span { display: none; }
+  .language-switch button { padding: 5px; }
 }
 @media (max-width: 360px) {
   .github-link span { display: none; }

@@ -1,10 +1,11 @@
+import { BannerError, type ErrorKey } from '../i18n/messages'
 import { useEffect, useRef, useState } from 'react'
 import type { BannerSettings } from '../types'
 import { sampleMask, type Mask } from './mask'
 import { renderSvg } from './svg'
 import { validateSettings } from './validation'
 
-interface LoadedFont { file: File | null; family: string; error?: string }
+interface LoadedFont { file: File | null; family: string; error?: ErrorKey }
 const standard: LoadedFont = { file: null, family: 'DM Sans Variable' }
 
 function useFont(file: File | null) {
@@ -23,7 +24,7 @@ function useFont(file: File | null) {
         document.fonts.add(face)
         setFont({ file: selected, family: face.family })
       } catch {
-        if (active) setFont({ file: selected, family: '', error: 'Schriftdatei unlesbar. Wähle eine andere Schrift oder die Standardschrift.' })
+        if (active) setFont({ file: selected, family: '', error: 'fontError' })
       }
     }
     void load(file)
@@ -33,7 +34,7 @@ function useFont(file: File | null) {
 }
 
 interface Result { previewUrl: string; exportUrl: string }
-interface RenderState { settings: BannerSettings; reduced: boolean; result?: Result; error?: string }
+interface RenderState { settings: BannerSettings; reduced: boolean; result?: Result; error?: ErrorKey }
 
 export function useBanner(settings: BannerSettings) {
   const [reduced, setReduced] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -71,7 +72,7 @@ export function useBanner(settings: BannerSettings) {
         const previewUrl = reduced && settings.animate ? createUrl(renderSvg({ ...settings, animate: false }, mask)) : exportUrl
         setState({ settings, reduced, result: { exportUrl, previewUrl } })
       } catch (error) {
-        if (active) setState({ settings, reduced, error: error instanceof Error ? error.message : 'Banner konnte nicht erzeugt werden.' })
+        if (active) setState({ settings, reduced, error: error instanceof BannerError ? error.key : 'generateError' })
       }
     }
     const timer = setTimeout(() => void generate(), 45)
