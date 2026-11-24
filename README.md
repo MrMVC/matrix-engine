@@ -41,6 +41,12 @@ and personal branding.
 - Lightweight SVG export
 - No JavaScript required for animation
 - Command-line interface
+- Six color presets: Purple, Green, Blue, Red, Cyan and Mono
+- Automatic text scaling
+- Adjustable animation speed
+- Static SVG generation mode
+- Cross-platform CI testing
+- Automated dependency updates
 
 ## 03 / Preview
 
@@ -69,7 +75,7 @@ cd matrix-engine
 ### Install dependencies
 
 ```bash
-python -m pip install Pillow
+python -m pip install -r requirements.txt
 ```
 
 ## 05 / Usage
