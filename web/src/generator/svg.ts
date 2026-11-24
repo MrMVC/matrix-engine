@@ -50,6 +50,13 @@ export function renderSvg(s: BannerSettings, mask: Mask) {
     if (animate) parts.push(`<animate attributeName="opacity" values=".55;1;.8;.55" dur="${seconds(2, 5)}" begin="-${seconds(0, 5)}" repeatCount="indefinite"/>`)
     parts.push('</text>')
   }
-  parts.push(`</g><path d="M0 ${height * .79} H${width}" stroke="${accent}" opacity=".2"/></g></svg>`)
+  parts.push(`</g><path d="M0 ${height * .79} H${width}" stroke="${accent}" opacity=".2"/>`)
+  if (animate) {
+    const scanWidth = width * .22
+    const duration = (3 / speed).toFixed(2)
+    parts.push(`<defs><linearGradient id="scanline"><stop offset="0" stop-color="${accent}" stop-opacity="0"/><stop offset=".5" stop-color="${light}"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></linearGradient></defs>`)
+    parts.push(`<rect x="${-scanWidth}" y="${height * .79 - 1}" width="${scanWidth}" height="2" fill="url(#scanline)"><animate attributeName="x" from="${-scanWidth}" to="${width}" dur="${duration}s" repeatCount="indefinite"/></rect>`)
+  }
+  parts.push('</g></svg>')
   return parts.join('')
 }
