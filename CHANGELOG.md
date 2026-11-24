@@ -4,7 +4,7 @@ All notable changes to Matrix Engine will be documented in this file.
 
 This project follows Semantic Versioning.
 
-## [Unreleased]
+## [1.0.0] - 2026-11-24
 
 ### Added
 - Animated SVG matrix banner generator.
