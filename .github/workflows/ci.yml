@@ -1,0 +1,49 @@
+name: Matrix Engine CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Check Python syntax
+        run: python -m py_compile build_mrmvc.py
+
+      - name: Generate purple banner
+        run: python build_mrmvc.py --text MrMVC --color purple --output test-purple.svg
+
+      - name: Generate blue banner
+        run: python build_mrmvc.py --text Developer --color blue --width 1200 --height 350 --speed 1.5 --output test-blue.svg
+
+      - name: Generate static banner
+        run: python build_mrmvc.py --text Matrix --no-animation --output test-static.svg
+
+      - name: Validate SVG files
+        run: python -c "import xml.etree.ElementTree as ET; [ET.parse(f) for f in ['test-purple.svg', 'test-blue.svg', 'test-static.svg']]; print('All SVG files are valid XML')"
