@@ -42,7 +42,23 @@ try {
   const button = name => page.getByRole('button', { name, exact: true })
   const field = name => page.getByLabel(name, { exact: true })
   const banner = page.locator('main .preview > .stage .banner')
-  const svg = () => banner.evaluate(async image => { await image.decode(); return (await fetch(image.src)).text() })
+  const svg = async () => {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      try {
+        return await banner.evaluate(async image => {
+          const src = image.src
+          await image.decode()
+          if (src !== image.src) throw new Error('Preview changed')
+          const response = await fetch(src)
+          if (!response.ok) throw new Error('SVG unavailable')
+          return response.text()
+        })
+      } catch (error) {
+        if (attempt === 19) throw error
+        await page.waitForTimeout(100)
+      }
+    }
+  }
   async function download(label, filename) {
     const waiting = page.waitForEvent('download')
     await button(label).click()
