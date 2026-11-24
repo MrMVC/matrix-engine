@@ -75,7 +75,7 @@ export function useBanner(settings: BannerSettings) {
       }
     }
     const timer = setTimeout(() => void generate(), 45)
-    return () => { active = false; clearTimeout(timer); urls.forEach(url => URL.revokeObjectURL(url)) }
+    return () => { active = false; clearTimeout(timer); setTimeout(() => urls.forEach(url => URL.revokeObjectURL(url)), 2000) }
   }, [settings, reduced, font])
   const current = state?.settings === settings && state.reduced === reduced ? state : null
   return { result: current?.result, error: font?.error ?? current?.error, reduced }
