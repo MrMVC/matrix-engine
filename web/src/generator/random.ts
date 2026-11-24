@@ -1,3 +1,5 @@
+import { BannerError } from '../i18n/messages.ts'
+
 // Integer seeding, MT19937 tempering and rejection sampling follow CPython's
 // _random.Random and random.Random._randbelow_with_getrandbits.
 export class PythonRandom {
@@ -5,7 +7,7 @@ export class PythonRandom {
   private index = 624
 
   constructor(seed: number) {
-    if (!Number.isSafeInteger(seed)) throw new RangeError('Ungültiger Seed.')
+    if (!Number.isSafeInteger(seed)) throw new BannerError('seedError')
     const absolute = Math.abs(seed)
     const key = [absolute >>> 0]
     if (absolute >= 2 ** 32) key.push(Math.floor(absolute / 2 ** 32))
@@ -53,7 +55,7 @@ export class PythonRandom {
 
   range(low: number, high: number) {
     const span = high - low
-    if (!Number.isInteger(span) || span < 1 || span > 0xffffffff) throw new RangeError('Ungültiger Zufallsbereich.')
+    if (!Number.isInteger(span) || span < 1 || span > 0xffffffff) throw new BannerError('randomError')
     const shift = Math.clz32(span)
     let draw: number
     do { draw = this.word() >>> shift } while (draw >= span)

@@ -1,13 +1,14 @@
+import { BannerError, messages, type Language } from './i18n/messages.ts'
 import { validText } from './generator/validation.ts'
 
 export const svgFilename = 'matrix-banner.svg'
 
-export function markdownSnippet(text: string) {
-  if (!validText(text)) throw new Error('Ungültiger Bannertext.')
+export function markdownSnippet(text: string, language: Language = 'en') {
+  if (!validText(text)) throw new BannerError('textError')
   // Numeric entities for ASCII punctuation keep Markdown syntax and HTML literal
   // even for nested brackets, backticks, backslashes and pre-existing entities.
   const alt = text.replace(/[!-\/:-@\[-`{-~]/g, char => '&#' + char.charCodeAt(0) + ';')
-  return `![${alt} – Matrix-Banner](./${svgFilename})`
+  return `![${alt} – ${messages[language].bannerNoun}](./${svgFilename})`
 }
 
 export function downloadUrl(url: string, filename: string) {

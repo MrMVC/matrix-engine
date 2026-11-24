@@ -1,3 +1,5 @@
+import { BannerError } from '../i18n/messages.ts'
+
 export interface Mask {
   step: number
   // Row-major positions in the original banner, independent of devicePixelRatio.
@@ -7,7 +9,7 @@ export interface Mask {
 export function sampleMask(text: string, width: number, height: number, fontSize: number, family: string): Mask {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  if (!ctx) throw new Error('Die Schriftmaske benötigt Canvas 2D.')
+  if (!ctx) throw new BannerError('canvasError')
   let size = Math.min(fontSize, Math.floor(height * .8))
   while (size >= 8) {
     const font = '700 ' + size + 'px "' + family + '", sans-serif'
@@ -43,5 +45,5 @@ export function sampleMask(text: string, width: number, height: number, fontSize
     }
     size -= Math.max(1, Math.floor(size / 15))
   }
-  throw new Error('Der Text passt nicht in das Format. Kürze ihn oder vergrößere den Banner.')
+  throw new BannerError('fitError')
 }
