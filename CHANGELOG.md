@@ -1,120 +1,96 @@
-# \# Changelog
+# Changelog
 
-# 
+All notable changes to Matrix Engine will be documented in this file.
 
-# All notable changes to Matrix Engine will be documented in this file.
+This project follows Semantic Versioning.
 
-# 
+## [2.0.0] - 2026-11-25
 
-# This project follows Semantic Versioning.
+### Added
 
-# 
+- Interactive Matrix Engine Web Studio.
 
-# \## \[2.0.0] - 2026-11-25
+- Real-time animated SVG preview.
 
-# 
+- Six color presets and custom HEX colors.
 
-# \### Added
+- Custom dimensions, typography, animation speed and seed.
 
-# \- Interactive Matrix Engine Web Studio.
+- Animated and static SVG downloads.
 
-# \- Real-time animated SVG preview.
+- GitHub-compatible Markdown export.
 
-# \- Six color presets and custom HEX colors.
+- Responsive desktop, tablet and mobile interface.
 
-# \- Custom dimensions, typography, animation speed and seed.
+- Reduced-motion accessibility support.
 
-# \- Animated and static SVG downloads.
+- Local font customization.
 
-# \- GitHub-compatible Markdown export.
+- Automated TypeScript and browser tests.
 
-# \- Responsive desktop, tablet and mobile interface.
+- Continuous deployment through GitHub Pages.
 
-# \- Reduced-motion accessibility support.
+### Fixed
 
-# \- Local font customization.
+- SVG preview timing during configuration changes.
 
-# \- Automated TypeScript and browser tests.
+- Premature SVG blob URL revocation.
 
-# \- Continuous deployment through GitHub Pages.
+- Browser compatibility issues in CI.
 
-# 
+### Compatibility
 
-# \### Fixed
+- Original Python CLI remains unchanged.
 
-# \- SVG preview timing during configuration changes.
+- No backend, API keys or installation required.
 
-# \- Premature SVG blob URL revocation.
+- Fully client-side banner generation.
 
-# \- Browser compatibility issues in CI.
+### Live Demo
 
-# 
+https://mrmvc.github.io/matrix-engine/
 
-# \### Compatibility
+---
 
-# \- Original Python CLI remains unchanged.
+## [1.0.0] - 2026-11-24
 
-# \- No backend, API keys or installation required.
+### Added
 
-# \- Fully client-side banner generation.
+- Animated SVG matrix banner generator.
 
-# 
+- Six customizable color presets.
 
-# \### Live Demo
+- Custom text and automatic text scaling.
 
-# https://mrmvc.github.io/matrix-engine/
+- Configurable banner dimensions.
 
-# 
+- Adjustable animation speed.
 
-# \---
+- Custom font support.
 
-# 
+- Static SVG generation mode.
 
-# \## \[1.0.0] - 2026-11-24
+- Command-line interface.
 
-# 
+- Reproducible generation through random seeds.
 
-# \### Added
+- Cross-platform CI testing.
 
-# \- Animated SVG matrix banner generator.
+- Automated dependency updates.
 
-# \- Six customizable color presets.
+- Repository security scanning.
 
-# \- Custom text and automatic text scaling.
+### Fixed
 
-# \- Configurable banner dimensions.
+- Platform-specific font and output paths.
 
-# \- Adjustable animation speed.
+- Python compatibility with Pillow dependencies.
 
-# \- Custom font support.
+### Compatibility
 
-# \- Static SVG generation mode.
+- Python 3.11, 3.12 and 3.13.
 
-# \- Command-line interface.
+- Windows, Linux and macOS.
 
-# \- Reproducible generation through random seeds.
-
-# \- Cross-platform CI testing.
-
-# \- Automated dependency updates.
-
-# \- Repository security scanning.
-
-# 
-
-# \### Fixed
-
-# \- Platform-specific font and output paths.
-
-# \- Python compatibility with Pillow dependencies.
-
-# 
-
-# \### Compatibility
-
-# \- Python 3.11, 3.12 and 3.13.
-
-# \- Windows, Linux and macOS.
-
-# \- Pillow 13.0.0.
+- Pillow 13.0.0.
 
